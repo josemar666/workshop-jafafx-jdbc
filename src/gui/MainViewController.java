@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alerts;
@@ -34,12 +35,15 @@ public class MainViewController implements Initializable {
 
 	@FXML
 	public void onMenuItemDepartamentAction() {
-		loadView2("/gui/DepartamentList.fxml");
+		loadView("/gui/DepartamentList.fxml", (DepartmentListController controller ) ->{
+			controller.setDepartamentService(new DepartamentService());
+			controller.upDateTableView();
+		});
 	}
 
 	@FXML
 	public void onMenuItemAboutAction() {
-		loadView("/gui/About.fxml");
+		loadView("/gui/About.fxml" , x ->{});
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class MainViewController implements Initializable {
 
 	}
 
-	private synchronized void loadView(String AbsoluteName) {
+	private synchronized <T> void loadView(String AbsoluteName , Consumer<T> iniatialinzigAction) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(AbsoluteName));
 			VBox newvbox = loader.load();
@@ -59,29 +63,15 @@ public class MainViewController implements Initializable {
 			mainvBox.getChildren().clear();
 			mainvBox.getChildren().add(mainMenu);
 			mainvBox.getChildren().addAll(newvbox.getChildren());
+			
+			T controller = loader.getController();
+			iniatialinzigAction.accept(controller);
+			
 		} catch (IOException e) {
 			Alerts.showAlert("IO EXCEPTION ", "ERROR LOADING VIES ", e.getMessage(), AlertType.ERROR);
 		}
-	}
-		private synchronized void loadView2(String AbsoluteName) {
-			try {
-				FXMLLoader loader = new FXMLLoader(getClass().getResource(AbsoluteName));
-				VBox newvbox = loader.load();
-				
-				Scene mainScene = Main.getMainScene();
-				VBox mainvBox =(VBox)((ScrollPane) mainScene.getRoot()).getContent();
-				
-				Node mainMenu = mainvBox.getChildren().get(0);
-				mainvBox.getChildren().clear();
-				mainvBox.getChildren().add(mainMenu);
-				mainvBox.getChildren().addAll(newvbox.getChildren());
-				DepartmentListController controller = loader.getController();
-				controller.setDepartamentService(new DepartamentService());
-				controller.upDateTableView();
-				
-			} catch (IOException e) {
-				Alerts.showAlert("IO EXCEPTION ", "ERROR LOADING VIES ", e.getMessage(), AlertType.ERROR);
-			}
+	
+		
 
 
 	}
