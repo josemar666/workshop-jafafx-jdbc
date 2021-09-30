@@ -27,7 +27,7 @@ import javafx.stage.Stage;
 import model.entites.Department;
 import model.services.DepartamentService;
 
-public class DepartmentListController implements Initializable {
+public class DepartmentListController implements Initializable , DataChangeListener {
 	
 	private DepartamentService service;
 	
@@ -94,6 +94,7 @@ public class DepartmentListController implements Initializable {
 			
 			controller.setDepartment(obj);
 			controller.setDepartmentService(new DepartamentService());
+			controller.subscribeDataChangeListener(this);
 			controller.upDateFormData();
 			
 			
@@ -109,6 +110,12 @@ public class DepartmentListController implements Initializable {
 		}catch(IOException e) {
 			Alerts.showAlert("IOEXCEPTION", " ERROR LOADING VIEW  ", e.getMessage(),AlertType.ERROR);
 		}
+	}
+
+	@Override
+	public void onDataChanged() {
+		upDateTableView();
+		
 	}
 
 }
